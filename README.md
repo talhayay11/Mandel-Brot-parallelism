@@ -1,1 +1,1 @@
-# Madel-Brot-parallelism
+# Mandel-Brot-parallelism
