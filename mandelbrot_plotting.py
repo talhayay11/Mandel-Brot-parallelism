@@ -5,7 +5,11 @@ from numba import cuda
 import time
 from concurrent.futures import ProcessPoolExecutor
 import os
+import tkinter as tk
+from tkinter import ttk
 from mandelbrot_core import compute_mandelbrot_region
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from matplotlib.figure import Figure
 
 # class ZoomableMandelbrot:
 #     def __init__(self, ax, max_iter, width=800, height=800):
@@ -105,12 +109,19 @@ from mandelbrot_core import compute_mandelbrot_region
 
 
 class ZoomableMandelbrot:
-    def __init__(self, ax, max_iter, regions, processors, width=800, height=800):
-        self.ax = ax
+    def __init__(self, master,max_iter, regions, processors, width=800, height=800):
+        self.master = master
         self.max_iter = max_iter
         self.processors = processors
         self.width = width
         self.height = height
+
+        self.figure = Figure(figsize=(5, 5))
+        self.ax = self.figure.add_subplot(111)
+        self.canvas = FigureCanvasTkAgg(self.figure, master=self.master)
+        self.canvas.draw()
+        self.canvas_widget = self.canvas.get_tk_widget()
+        self.canvas_widget.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
         
         if regions == "auto":
             self.regions = processors * 2
@@ -123,9 +134,9 @@ class ZoomableMandelbrot:
 
         
 
-        self.cid_press = ax.figure.canvas.mpl_connect('button_press_event', self.on_press)
-        self.cid_release = ax.figure.canvas.mpl_connect('button_release_event', self.on_release)
-        self.cid_motion = ax.figure.canvas.mpl_connect('motion_notify_event', self.on_motion)
+        self.cid_press = self.canvas.mpl_connect('button_press_event', self.on_press)
+        self.cid_release = self.canvas.mpl_connect('button_release_event', self.on_release)
+        self.cid_motion = self.canvas.mpl_connect('motion_notify_event', self.on_motion)
 
         self.rect = patches.Rectangle((0,0), 0, 0, fill=False, edgecolor='white', linewidth=1.5)
         self.ax.add_patch(self.rect)
@@ -147,7 +158,7 @@ class ZoomableMandelbrot:
         dy = event.ydata - ypress
         self.rect.set_width(dx)
         self.rect.set_height(dy)
-        self.ax.figure.canvas.draw_idle()
+        self.canvas.draw_idle()
 
     def on_release(self, event):
         if self.press is None or event.inaxes != self.ax:
@@ -170,10 +181,10 @@ class ZoomableMandelbrot:
         side_length = min(xmax - xmin, ymax - ymin)
 
         # Adjust the boundaries to form a square centered at the calculated center
-        new_xmin = center_x - side_length / 2.0
-        new_xmax = center_x + side_length / 2.0
-        new_ymin = center_y - side_length / 2.0
-        new_ymax = center_y + side_length / 2.0
+        new_xmin = int(center_x - side_length / 2.0)
+        new_xmax = int(center_x + side_length / 2.0)
+        new_ymin = int(center_y - side_length / 2.0)
+        new_ymax = int(center_y + side_length / 2.0)
 
         # Update the plot with the new Mandelbrot set region
         self.plot_mandelbrot(new_xmin, new_xmax, new_ymin, new_ymax)
@@ -187,8 +198,8 @@ class ZoomableMandelbrot:
         print(f"Number of regions: {self.regions}")
 
             # Calculate width and height of each region
-        region_width = self.width // self.regions
-        region_height = self.height // self.regions
+        region_width = int(self.width // self.regions)
+        region_height = int(self.height // self.regions)
 
             # Adjust the region boundaries to ensure integer number of pixels per region
         x_step = (xmax - xmin) / self.width
@@ -206,7 +217,7 @@ class ZoomableMandelbrot:
                     regions.append((f"Region-{i}-{j}", x_min, x_max, y_min, y_max, region_width, region_height, self.max_iter))
 
         start_time = time.time()
-        with ProcessPoolExecutor(processors) as executor:
+        with ProcessPoolExecutor(max_workers=processors) as executor:
             results = list(executor.map(compute_mandelbrot_region, regions))
 
         final_result = np.zeros((self.height, self.width))
@@ -234,7 +245,7 @@ class ZoomableMandelbrot:
 
         self.ax.clear()
         self.ax.imshow(final_result.T, extent=[self.xmin, self.xmax, self.ymin, self.ymax], origin='lower', cmap='hot')
-        self.ax.figure.canvas.draw_idle()
+        self.canvas.draw_idle()
 
 
     

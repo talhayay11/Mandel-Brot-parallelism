@@ -5,6 +5,7 @@ from numba import cuda
 import time
 from concurrent.futures import ProcessPoolExecutor
 import os
+import tkinter as tk
 
 from mandelbrot_plotting import  ZoomableMandelbrot
 from mandelbrot_core import processCount
@@ -17,9 +18,13 @@ from mandelbrot_core import processCount
 
 
 if __name__ == '__main__':
-    fig, ax = plt.subplots(figsize=(10, 10))
+    root = tk.Tk()
+    root.title("Mandelbrot Set Viewer")
+    button = tk.Button(root, text="Click Me")
+    button.pack(pady=20)
     #mandelbrot_display = ZoomableMandelbrot(ax, max_iter=100,regions="auto")
     for processors in processCount:
-        mandelbrot_display =  ZoomableMandelbrot(ax, max_iter=100,regions="auto", processors=processors)
+        mandelbrot_display =  ZoomableMandelbrot(root, max_iter=100,regions="auto", processors=processors)
         #plt.show()
-    plt.show()
+    
+    root.mainloop()

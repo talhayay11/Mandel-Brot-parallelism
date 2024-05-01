@@ -112,8 +112,8 @@ class ZoomableMandelbrot:
         print(f"Number of regions: {self.regions}")
 
             # Calculate width and height of each region
-        region_width = self.width // self.regions
-        region_height = self.height // self.regions
+        region_width = int(self.width // self.regions)
+        region_height = int(self.height // self.regions)
 
             # Adjust the region boundaries to ensure integer number of pixels per region
         x_step = (xmax - xmin) / self.width
@@ -168,4 +168,3 @@ if __name__ == '__main__':
         mandelbrot_display =  ZoomableMandelbrot(ax, max_iter=100,regions="auto", processors=processors)
         #plt.show()
     plt.show()
-    

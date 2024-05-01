@@ -34,7 +34,8 @@ import os
 #     return max_iter
 
 
-processCount = [6, 5, 4, 3, 2, 1]
+# processCount = [6, 5, 4, 3, 2, 1]
+processCount = [6]
 
 def mandelbrot(c, max_iter):
     z = complex(0, 0)
