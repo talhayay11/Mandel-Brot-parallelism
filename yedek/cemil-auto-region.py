@@ -168,3 +168,4 @@ if __name__ == '__main__':
         mandelbrot_display =  ZoomableMandelbrot(ax, max_iter=100,regions="auto", processors=processors)
         #plt.show()
     plt.show()
+    
