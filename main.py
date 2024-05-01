@@ -17,11 +17,15 @@ from mandelbrot_core import processCount
 #     plot_zoomable_mandelbrot(1000)
 
 def on_resolution_selected(selected_resolution):
-    print("Selected resolution:", selected_resolution)
+    width, height = map(int, selected_resolution.split('x'))
+    for processors in processCount:
+        mandelbrot_display = ZoomableMandelbrot(root, max_iter=100, regions="auto", processors=processors, width=width, height=height)
+        # Do further operations with mandelbrot_display if needed
 
 if __name__ == '__main__':
     root = tk.Tk()
     root.title("Mandelbrot Set Viewer")
+    
     resolutions = ["800x600", "1024x768", "1280x720", "1920x1080"]
     selected_resolution = tk.StringVar(root)
     selected_resolution.set(resolutions[0])  # Default resolution
@@ -29,9 +33,5 @@ if __name__ == '__main__':
     # Dropdown menu for selecting resolution
     resolution_dropdown = tk.OptionMenu(root, selected_resolution, *resolutions, command=on_resolution_selected)
     resolution_dropdown.pack(pady=20)
-    
-    for processors in processCount:
-        mandelbrot_display =  ZoomableMandelbrot(root, max_iter=100,regions="auto", processors=processors)
-        #plt.show()
     
     root.mainloop()
