@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import time
 import matplotlib.patches as patches
 from mandelbrot_core import mandelbrot_cuda
-from mandelbrot_core import compute_mandelbrot_region
+from mandelbrot_core import compute_mandelbrot_regionn
 from concurrent.futures import ProcessPoolExecutor
 
 
@@ -82,8 +82,8 @@ def compute_mandelbrot_gpu(min_x, max_x, min_y, max_y, width, height, max_iter):
     blockspergrid_x = (width + (threadsperblock[0] - 1)) // threadsperblock[0]
     blockspergrid_y = (height + (threadsperblock[1] - 1)) // threadsperblock[1]
     blockspergrid = (blockspergrid_x, blockspergrid_y)
-    mandelbrot_kernel[blockspergrid, threadsperblock](min_x, max_x, min_y, max_y, width, height, image, max_iter)
     start_time = time.time()
+    mandelbrot_kernel[blockspergrid, threadsperblock](min_x, max_x, min_y, max_y, width, height, image, max_iter)
     cuda.synchronize()
     elapsed_time = time.time() - start_time
     print(f"GPU computation time: {elapsed_time:.2f} seconds")

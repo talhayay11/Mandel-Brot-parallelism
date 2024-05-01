@@ -11,117 +11,29 @@ from mandelbrot_core import compute_mandelbrot_region
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
 
-# class ZoomableMandelbrot:
-#     def __init__(self, ax, max_iter, width=800, height=800):
-#         self.ax = ax
-#         self.max_iter = max_iter
-#         self.width = width
-#         self.height = height
-#         self.press = None
-#         self.xmin, self.xmax = -2.0, 2.0
-#         self.ymin, self.ymax = -2.0, 2.0
-
-#         self.cid_press = ax.figure.canvas.mpl_connect('button_press_event', self.on_press)
-#         self.cid_release = ax.figure.canvas.mpl_connect('button_release_event', self.on_release)
-#         self.cid_motion = ax.figure.canvas.mpl_connect('motion_notify_event', self.on_motion)
-
-#         self.rect = patches.Rectangle((0,0), 0, 0, fill=False, edgecolor='white', linewidth=1.5)
-#         self.ax.add_patch(self.rect)
-#         self.plot_mandelbrot()
-
-#     def on_press(self, event):
-#         if event.inaxes != self.ax:
-#             return
-#         self.press = event.xdata, event.ydata
-#         self.rect.set_width(0)
-#         self.rect.set_height(0)
-#         self.rect.set_xy((event.xdata, event.ydata))
-
-#     def on_motion(self, event):
-#         if self.press is None or event.inaxes != self.ax:
-#             return
-#         xpress, ypress = self.press
-#         dx = event.xdata - xpress
-#         dy = event.ydata - ypress
-#         self.rect.set_width(dx)
-#         self.rect.set_height(dy)
-#         self.ax.figure.canvas.draw_idle()
-
-#     def on_release(self, event):
-#         if self.press is None or event.inaxes != self.ax:
-#             return
-#         xpress, ypress = self.press
-#         xrelease, yrelease = event.xdata, event.ydata
-#         self.xmin, self.xmax = sorted([xpress, xrelease])
-#         self.ymin, self.ymax = sorted([ypress, yrelease])
-#         self.press = None
-#         self.rect.set_width(0)
-#         self.rect.set_height(0)
-#         self.plot_mandelbrot()
-
-#     def plot_mandelbrot(self):
-#         start_time = time.time()
-
-#         # Split the image into four quadrants for parallel processing
-#         x_mid = (self.xmin + self.xmax) / 2
-#         y_mid = (self.ymin + self.ymax) / 2
-
-#         # Define regions for parallel computation
-#         regions = [
-#             ("Bottom-left", self.xmin, x_mid, self.ymin, y_mid, self.width // 2, self.height // 2, self.max_iter),
-#             ("Bottom-right", x_mid, self.xmax, self.ymin, y_mid, self.width // 2, self.height // 2, self.max_iter),
-#             ("Top-left", self.xmin, x_mid, y_mid, self.ymax, self.width // 2, self.height // 2, self.max_iter),
-#             ("Top-right", x_mid, self.xmax, y_mid, self.ymax, self.width // 2, self.height // 2, self.max_iter)
-#         ]
-
-#         # Adjust the order of regions for (1,2,3,4) grid layout
-#         # Swap regions for top-left and bottom-right quadrants
-#         regions[2], regions[1] = regions[1], regions[2]
-
-#         # Create a ProcessPoolExecutor
-#         processesNumber = 1
-#         with ProcessPoolExecutor(max_workers=processesNumber) as executor:
-#             # Map compute_mandelbrot_region to regions and collect results
-#             results = list(executor.map(compute_mandelbrot_region, regions))
-
-#         # Rearrange results to form the complete image
-#         bottom_left, bottom_right, top_left, top_right = results
-#         top = np.concatenate((top_left, top_right), axis=1)
-#         bottom = np.concatenate((bottom_left, bottom_right), axis=1)
-#         final_result = np.concatenate((bottom, top), axis=0)
-
-#         elapsed_time = time.time() - start_time
-#         print(f"Process count: {processesNumber} Computation time: {elapsed_time:.2f} seconds")
-
-
-#         self.ax.clear()
-#         self.ax.imshow(final_result.T, extent=[self.xmin, self.xmax, self.ymin, self.ymax], origin='lower', cmap='hot')
-#         self.ax.set_title(f"Process count: {processesNumber} Computation time: {elapsed_time:.2f} seconds")
-#         self.ax.axis("off")
-
-
-#         self.ax.figure.canvas.draw_idle()
-
-# def plot_zoomable_mandelbrot(max_iter):
-#     fig, ax = plt.subplots(figsize=(8, 8))
-#     zoomable_mandelbrot = ZoomableMandelbrot(ax, max_iter)
-#     plt.show()
-
+Efficiency = []
+Speedup = []
 
 class ZoomableMandelbrot:
-    def __init__(self, master,max_iter, regions, processors, width=800, height=800):
+    def __init__(self, master,max_iter, regions, processors, width=800, height=800, ComputeOnce=True):
         self.master = master
         self.max_iter = max_iter
         self.processors = processors
         self.width = width
         self.height = height
+        self.ComputeOnce = ComputeOnce
+
+
 
         self.figure = Figure(figsize=(5, 5))
-        self.ax = self.figure.add_subplot(111)
-        self.canvas = FigureCanvasTkAgg(self.figure, master=self.master)
-        self.canvas.draw()
-        self.canvas_widget = self.canvas.get_tk_widget()
-        self.canvas_widget.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+        
+        if self.ComputeOnce:
+            self.ax = self.figure.add_subplot(111)
+            self.canvas = FigureCanvasTkAgg(self.figure, master=self.master)
+            self.canvas.draw()
+            self.canvas_widget = self.canvas.get_tk_widget()
+            self.canvas_widget.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+        
         
         if regions == "auto":
             self.regions = processors * 2
@@ -133,61 +45,97 @@ class ZoomableMandelbrot:
         self.ymin, self.ymax = -2.0, 2.0
 
         
+        if self.ComputeOnce:
 
-        self.cid_press = self.canvas.mpl_connect('button_press_event', self.on_press)
-        self.cid_release = self.canvas.mpl_connect('button_release_event', self.on_release)
-        self.cid_motion = self.canvas.mpl_connect('motion_notify_event', self.on_motion)
+            self.rect = None
+            self.start_x = None
+            self.start_y = None
 
-        self.rect = patches.Rectangle((0,0), 0, 0, fill=False, edgecolor='white', linewidth=1.5)
-        self.ax.add_patch(self.rect)
+
+            self.canvas_widget.bind("<ButtonPress-1>", self.on_press)
+            self.canvas_widget.bind("<B1-Motion>", self.on_motion)
+            self.canvas_widget.bind("<ButtonRelease-1>", self.on_release)
+
+
+        # if self.ComputeOnce:
+        #     self.ax.add_patch(self.rect)
+        #self.ax.add_patch(self.rect)
         self.plot_mandelbrot(self.regions, self.processors)
 
     def on_press(self, event):
-        if event.inaxes != self.ax:
-            return
-        self.press = event.xdata, event.ydata
-        self.rect.set_width(0)
-        self.rect.set_height(0)
-        self.rect.set_xy((event.xdata, event.ydata))
+        print("Pressed", event.x, event.y)  # Koordinatları kontrol et
+        self.press = (event.x, event.y)
+        self.start_x = event.x
+        self.start_y = event.y
+        if self.rect:
+            self.canvas_widget.delete(self.rect)
+        # Yeni bir dikdörtgen oluştur
+        self.rect = self.canvas_widget.create_rectangle(self.start_x, self.start_y, event.x, event.y, outline='red')
+
 
     def on_motion(self, event):
-        if self.press is None or event.inaxes != self.ax:
+        if self.press is None:
             return
         xpress, ypress = self.press
-        dx = event.xdata - xpress
-        dy = event.ydata - ypress
-        self.rect.set_width(dx)
-        self.rect.set_height(dy)
-        self.canvas.draw_idle()
+        dx = event.x - xpress
+        dy = event.y - ypress
+        if self.rect:
+            self.canvas_widget.coords(self.rect, self.start_x, self.start_y, event.x, event.y)
+
+        self.canvas.draw()
 
     def on_release(self, event):
-        if self.press is None or event.inaxes != self.ax:
+        if self.press is None:
             return
+        
         xpress, ypress = self.press
-        xrelease, yrelease = event.xdata, event.ydata
+        xrelease, yrelease = event.x, event.y
         self.press = None
 
-        # Calculate new region boundaries
-        xmin = min(xpress, xrelease)
-        xmax = max(xpress, xrelease)
-        ymin = min(ypress, yrelease)
-        ymax = max(ypress, yrelease)
+        # Piksel koordinatlarını data koordinatlarına dönüştürme
+        xmin, xmax = self.ax.get_xlim()
+        ymin, ymax = self.ax.get_ylim()
 
-        # Calculate center of the selected rectangle
+        dx = xmax - xmin
+        dy = ymax - ymin
+
+        # Piksel'den data koordinatlarına çevirme
+        data_xpress = xmin + (xpress / self.width) * dx
+        data_ypress = ymin + ((self.height - ypress) / self.height) * dy
+        data_xrelease = xmin + (xrelease / self.width) * dx
+        data_yrelease = ymin + ((self.height - yrelease) / self.height) * dy
+
+        # Hesaplanan sınırlar
+        xmin = min(data_xpress, data_xrelease)
+        xmax = max(data_xpress, data_xrelease)
+        ymin = min(data_ypress, data_yrelease)
+        ymax = max(data_ypress, data_yrelease)
+
+        # Seçilen bölgenin merkezi
         center_x = (xmin + xmax) / 2.0
         center_y = (ymin + ymax) / 2.0
 
-        # Determine the size of the square to maintain the aspect ratio
-        side_length = min(xmax - xmin, ymax - ymin)
+        # Yeni sınırların hesaplanması (%50 zoom)
+        new_width = (xmax - xmin) / 4.0  # %50 genişliğinin yarısı
+        new_height = (ymax - ymin) / 4.0  # %50 yüksekliğinin yarısı
 
-        # Adjust the boundaries to form a square centered at the calculated center
-        new_xmin = int(center_x - side_length / 2.0)
-        new_xmax = int(center_x + side_length / 2.0)
-        new_ymin = int(center_y - side_length / 2.0)
-        new_ymax = int(center_y + side_length / 2.0)
+        # Yeni sınırlar
+        new_xmin = center_x - new_width
+        new_xmax = center_x + new_width
+        new_ymin = center_y - new_height
+        new_ymax = center_y + new_height
 
-        # Update the plot with the new Mandelbrot set region
-        self.plot_mandelbrot(new_xmin, new_xmax, new_ymin, new_ymax)
+        if self.rect:
+            self.canvas_widget.coords(self.rect, self.start_x, self.start_y, event.x, event.y)
+
+        self.canvas_widget.delete(self.rect)
+
+
+        # Mandelbrot setinin yeni sınırlarla çizilmesi
+        self.plot_mandelbrot(self.regions, self.processors, new_xmin, new_xmax, new_ymin, new_ymax)
+
+
+
 
     def plot_mandelbrot(self,  regions, processors,  xmin=None, xmax=None, ymin=None, ymax=None):
         if xmin is None:
@@ -230,22 +178,31 @@ class ZoomableMandelbrot:
         elapsed_time = time.time() - start_time
         print(f"Number of processors: {processors} Total computation time: {elapsed_time:.2f} seconds")
 
-        start_time_sequential = time.time()
-        final_result_sequential = compute_mandelbrot_region(("Sequential", self.xmin, self.xmax, self.ymin, self.ymax, self.width, self.height, self.max_iter))
-        elapsed_time_sequential = time.time() - start_time_sequential
+
+        if self.ComputeOnce==False:
+            start_time_sequential = time.time()
+            final_result_sequential = compute_mandelbrot_region(("Sequential", self.xmin, self.xmax, self.ymin, self.ymax, self.width, self.height, self.max_iter))
+            elapsed_time_sequential = time.time() - start_time_sequential
 
             # Compute the speedup
-        speedup = elapsed_time_sequential / elapsed_time
+            speedup = elapsed_time_sequential / elapsed_time
+            Speedup.append(speedup)
 
             # Compute the efficiency
-        efficiency = speedup / processors
+        
+            efficiency = speedup / processors
+            Efficiency.append(efficiency)
 
             #print(f"Speedup: {speedup:.2f}")
             #print(f"Efficiency: {efficiency:.2f}")
 
-        self.ax.clear()
-        self.ax.imshow(final_result.T, extent=[self.xmin, self.xmax, self.ymin, self.ymax], origin='lower', cmap='hot')
-        self.canvas.draw_idle()
+        if self.ComputeOnce:
+            self.ax.clear()
+            self.ax.imshow(final_result.T, extent=[self.xmin, self.xmax, self.ymin, self.ymax], origin='lower', cmap='hot')
+            self.ax.set_title(f"Process count: {processors} Computation time: {elapsed_time:.2f} seconds")
+            self.ax.axis("off")
+            self.canvas.draw_idle()
+        
 
 
     
