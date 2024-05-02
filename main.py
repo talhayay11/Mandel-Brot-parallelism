@@ -8,7 +8,7 @@ from concurrent.futures import ProcessPoolExecutor
 import os
 import tkinter as tk
 
-from mandelbrot_plotting import  ZoomableMandelbrot, Efficiency, Speedup
+from mandelbrot_plotting import  ZoomableMandelbrot, Efficiency, Speedup, runTime
 #from mandelbrot_gpu import plot_mandelbrot_gpu
 from mandelbrot_core import processCount
 
@@ -52,33 +52,41 @@ def ComputeAll():
     messagebox.showinfo("Compute All", f"Testing for {minToMaxProcessors} processors")
     for processors in minToMaxProcessors:
         ZoomableMandelbrot(root, max_iter=max_iter_value, regions="auto", processors=processors, width=width, height=height, ComputeOnce=False)
-    
-    messagebox.showinfo("Efficiency", f"Efficiency: {Efficiency}\nAverage Efficiency: {np.mean(Efficiency)}")
-    messagebox.showinfo("Speedup", f"Speedup: {Speedup}\nAverage Speedup: {np.mean(Speedup)}")
-    # Efficiency and Speedup calculation
-    efficiency_data = [efficiency / time for efficiency, time in zip(Efficiency, range(1, len(Efficiency) + 1))]
-    speedup_data = [speedup / time for speedup, time in zip(Speedup, range(1, len(Speedup) + 1))]
-    
-    # Plotting Efficiency over Time
-    plt.figure(figsize=(8, 5))
-    plt.plot(range(1, len(efficiency_data) + 1), efficiency_data, marker='o', linestyle='-')
-    plt.title("Efficiency over Time")
-    plt.xlabel("Time")
-    plt.ylabel("Efficiency")
-    plt.grid(True)
-    plt.show()
-    
-    # Plotting Speedup over Time
-    plt.figure(figsize=(8, 5))
-    plt.plot(range(1, len(speedup_data) + 1), speedup_data, marker='o', linestyle='-')
-    plt.title("Speedup over Time")
-    plt.xlabel("Time")
-    plt.ylabel("Speedup")
-    plt.grid(True)
-    plt.show()
 
-    Efficiency.clear()
-    Speedup.clear()
+    print(runTime)
+
+    Speedup = [runTime[0] / time for time in runTime]
+    print(Speedup)
+
+    Efficiency = [100 * speedup / processor for speedup, processor in zip(Speedup, minToMaxProcessors)]
+    print(Efficiency)
+    
+    # messagebox.showinfo("Efficiency", f"Efficiency: {Efficiency}\nAverage Efficiency: {np.mean(Efficiency)}")
+    # messagebox.showinfo("Speedup", f"Speedup: {Speedup}\nAverage Speedup: {np.mean(Speedup)}")
+    # # Efficiency and Speedup calculation
+    # efficiency_data = [efficiency / time for efficiency, time in zip(Efficiency, range(1, len(Efficiency) + 1))]
+    # speedup_data = [speedup / time for speedup, time in zip(Speedup, range(1, len(Speedup) + 1))]
+    
+    # # Plotting Efficiency over Time
+    # plt.figure(figsize=(8, 5))
+    # plt.plot(range(1, len(efficiency_data) + 1), efficiency_data, marker='o', linestyle='-')
+    # plt.title("Efficiency over Time")
+    # plt.xlabel("Time")
+    # plt.ylabel("Efficiency")
+    # plt.grid(True)
+    # plt.show()
+    
+    # # Plotting Speedup over Time
+    # plt.figure(figsize=(8, 5))
+    # plt.plot(range(1, len(speedup_data) + 1), speedup_data, marker='o', linestyle='-')
+    # plt.title("Speedup over Time")
+    # plt.xlabel("Time")
+    # plt.ylabel("Speedup")
+    # plt.grid(True)
+    # plt.show()
+
+    # Efficiency.clear()
+    # Speedup.clear()
 
 def ComputeOnce():
     width, height = map(int, resolution.split('x'))

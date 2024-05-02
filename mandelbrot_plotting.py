@@ -13,6 +13,7 @@ from matplotlib.figure import Figure
 
 Efficiency = []
 Speedup = []
+runTime = []
 
 class ZoomableMandelbrot:
     def __init__(self, master,max_iter, regions, processors, width=800, height=800, ComputeOnce=True):
@@ -177,25 +178,26 @@ class ZoomableMandelbrot:
                 final_result[j * region_height:(j + 1) * region_height, i * region_width:(i + 1) * region_width] = result
 
         elapsed_time = time.time() - start_time
+        runTime.append(elapsed_time)
         print(f"Number of processors: {processors} Total computation time: {elapsed_time:.2f} seconds")
 
 
-        if self.ComputeOnce==False:
-            start_time_sequential = time.time()
-            compute_mandelbrot_region(("Sequential", self.xmin, self.xmax, self.ymin, self.ymax, self.width, self.height, self.max_iter))
-            elapsed_time_sequential = time.time() - start_time_sequential
+        # if self.ComputeOnce==False:
+        #     start_time_sequential = time.time()
+        #     compute_mandelbrot_region(("Sequential", self.xmin, self.xmax, self.ymin, self.ymax, self.width, self.height, self.max_iter))
+        #     elapsed_time_sequential = time.time() - start_time_sequential
 
-            # Compute the speedup
-            speedup = elapsed_time_sequential / elapsed_time
-            Speedup.append(speedup)
+        #     # Compute the speedup
+        #     speedup = elapsed_time_sequential / elapsed_time
+        #     Speedup.append(speedup)
 
-            # Compute the efficiency
+        #     # Compute the efficiency
         
-            efficiency = speedup / processors
-            Efficiency.append(efficiency)
+        #     efficiency = speedup / processors
+        #     Efficiency.append(efficiency)
 
-            #print(f"Speedup: {speedup:.2f}")
-            #print(f"Efficiency: {efficiency:.2f}")
+        #     #print(f"Speedup: {speedup:.2f}")
+        #     #print(f"Efficiency: {efficiency:.2f}")
 
         if self.ComputeOnce:
             self.ax.clear()
