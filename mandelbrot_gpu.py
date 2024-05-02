@@ -38,7 +38,7 @@ def compute_mandelbrot_gpu(min_x, max_x, min_y, max_y, width, height, max_iter, 
       
         print(f"Serie GPU computation time for grid {grid_index}: {gpu_serie_time:.2f} seconds")
 
-    threadsperblock = (16,16)
+    threadsperblock = (32,32)
     for grid_index in range(num_grids):
         blockspergrid_x = (width + (threadsperblock[0] - 1)) // threadsperblock[0]
         blockspergrid_y = (height + (threadsperblock[1] - 1)) // threadsperblock[1]
