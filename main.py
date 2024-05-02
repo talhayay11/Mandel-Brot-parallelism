@@ -7,6 +7,7 @@ import time
 from concurrent.futures import ProcessPoolExecutor
 import os
 import tkinter as tk
+import threading
 
 from mandelbrot_plotting import  ZoomableMandelbrot, Efficiency, Speedup, runTime
 from mandelbrot_gpu import plot_mandelbrot_gpu
@@ -28,9 +29,6 @@ efficiencyForSizes = []
 #     plot_zoomable_mandelbrot(1000)
 resolution = "800x800"  # Initialize the variable in the global scope
 max_iter_value = 100  # Initialize the variable in the global scope
-
-def butona_tiklandi():
-    plot_mandelbrot_gpu(10000, 1024,1024,1)
 
 def on_resolution_selected(selected_resolution):
     global resolution
@@ -98,6 +96,19 @@ def ComputeOnce():
     ZoomableMandelbrot(ax, max_iter=max_iter_value, regions="auto",processors=maximumPhysicalCores, width=width, height=height, ComputeOnce=True)
     
     plt.show()
+
+def ComputeOnceGPU():
+    width, height = map(int, resolution.split('x'))
+    plot_mandelbrot_gpu(max_iter_value,width,height,1)
+
+def onSelectedComputeUnit(selected_compute_unit):
+    print(selected_compute_unit)
+    if selected_compute_unit == "GPU":
+        button_compute_once.config(command=start_compute_once_gpu)
+    elif selected_compute_unit == "CPU":
+        button_compute_once.config(command=start_compute_once)
+        button_compute_all.config(command=start_compute_all)
+
 
 def SizeBenchmark():
     singleCoreTimeForSizes = []
@@ -179,22 +190,50 @@ def SizeBenchmark():
 if __name__ == '__main__':
     root = tk.Tk()
     root.title("Mandelbrot Set Viewer")
+
+    # add thread for each function
+
+    def start_benchmark():
+        thread_Benchmark = threading.Thread(target=SizeBenchmark)
+        thread_Benchmark.start() 
+
+    def start_compute_once():
+        thread_compute_once = threading.Thread(target=ComputeOnce)
+        thread_compute_once.start()
+
+    def start_compute_all():
+        thread_compute_all = threading.Thread(target=ComputeAll)
+        thread_compute_all.start()
+
+    def start_compute_once_gpu():
+        thread_compute_once_gpu = threading.Thread(target=ComputeOnceGPU)
+        thread_compute_once_gpu.start()
     
+    compute_units = ["GPU", "CPU"]
+    selected_compute_unit = tk.StringVar(root)
+    selected_compute_unit.set(compute_units[1])  # Default compute unit
     resolutions = [ "400x400", "600x600" ,"800x800", "1024x1024", "1200x1200"]
     selected_resolution = tk.StringVar(root)
     selected_resolution.set(resolutions[0])  # Default resolution
 
     SizeBenchmark()
 
-    button_compute_once = tk.Button(root, text="Tüm Çekirdeklerle Hesapla", command=ComputeOnce, width=20)
+    global button_compute_once, button_compute_all
+    button_compute_once = tk.Button(root, text="Tüm Çekirdeklerle Hesapla", command=start_compute_once, width=20)
     button_compute_once.pack(side="left", padx=30, pady=20)  # Add horizontal padding between buttons
 
-    button_compute_all = tk.Button(root, text="Sırayla Tüm Çekirdekler", command=ComputeAll, width=20)
+    button_compute_all = tk.Button(root, text="Sırayla Tüm Çekirdekler", command=start_compute_all, width=20)
     button_compute_all.pack(side="right", padx=20, pady=20)  # Add horizontal padding between buttons
 
+    compute_units_dropdown = tk.OptionMenu(root, selected_compute_unit, *compute_units, command=onSelectedComputeUnit)
+    compute_units_dropdown.pack(pady=10)
+
+    button_size_benchmark = tk.Button(root, text="Size Benchmark", command=start_benchmark, width=20)
+    button_size_benchmark.pack(pady=10)
+        
     # Dropdown menu for selecting resolution
     resolution_dropdown = tk.OptionMenu(root, selected_resolution, *resolutions, command=on_resolution_selected)
-    resolution_dropdown.pack(pady=20)
+    resolution_dropdown.pack(pady=10)
 
     # Entry field for setting max_iter
     max_iter_entry_label = tk.Label(root, text="Max Iteration:")
@@ -205,9 +244,9 @@ if __name__ == '__main__':
     set_max_iter_button.pack(pady=10)
 
 
-
-    buton = tk.Button(root, text="GPU ILE CALISTIR", command=butona_tiklandi)
-    buton.pack()
+    
+    # buton = tk.Button(root, text="GPU ILE CALISTIR", command=butona_tiklandi)
+    # buton.pack()
 
     root.mainloop()
     #plot_mandelbrot_gpu(max_iter=10000, width=1024, height=1024)
