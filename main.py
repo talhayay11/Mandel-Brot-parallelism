@@ -60,6 +60,21 @@ def ComputeAll():
 
     Efficiency = [100 * speedup / processor for speedup, processor in zip(Speedup, minToMaxProcessors)]
     print(Efficiency)
+
+    plt.plot(minToMaxProcessors, Efficiency, marker='o', linestyle='-', color='tab:blue', label="Efficiency")
+    plt.xlabel("Number of Processors")
+    plt.ylabel("Efficiency (%)", color='tab:blue')
+    plt.tick_params(axis='y', labelcolor='tab:blue')
+
+    # Create a secondary y-axis for Speedup on the right side
+    ax2 = plt.gca().twinx()
+    ax2.plot(minToMaxProcessors, Speedup, marker='s', linestyle='--', color='tab:orange', label="Speedup")
+    ax2.set_ylabel("Speedup", color='tab:orange')
+    ax2.tick_params(axis='y', labelcolor='tab:orange')
+
+    plt.title('Efficiency and Speedup vs. Number of Processors')
+    plt.grid(True)
+    plt.show()
     
     # messagebox.showinfo("Efficiency", f"Efficiency: {Efficiency}\nAverage Efficiency: {np.mean(Efficiency)}")
     # messagebox.showinfo("Speedup", f"Speedup: {Speedup}\nAverage Speedup: {np.mean(Speedup)}")
