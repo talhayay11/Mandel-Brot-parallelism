@@ -22,6 +22,7 @@ minToMaxProcessors = list(range(1,maximumPhysicalCores+1))
 #     plot_mandelbrot_gpu(max_iter=10000, width=1024, height=1024)
 #     plot_zoomable_mandelbrot(1000)
 resolution = "800x800"  # Initialize the variable in the global scope
+max_iter = 100  # Initialize the variable in the global scope
 
 def on_resolution_selected(selected_resolution):
     global resolution
@@ -43,8 +44,8 @@ def show_image(width, height, max_iter, regions, processors, compute_once):
     image_window.title("Mandelbrot Set")
 
     # Compute Mandelbrot set
-    mandelbrot = ZoomableMandelbrot(image_window, max_iter=max_iter, regions=regions,
-                                    processors=processors, width=width, height=height, ComputeOnce=compute_once)
+    mandelbrot = ZoomableMandelbrot(image_window,  width=width, height=height, max_iter=max_iter, regions=regions,
+                                    processors=processors, ComputeOnce=compute_once)
 
 def ComputeAll():
     width, height = map(int, resolution.split('x'))
@@ -59,7 +60,7 @@ def ComputeAll():
 
 def ComputeOnce():
     width, height = map(int, resolution.split('x'))
-    show_image(width, height, max_iter=100, regions="auto", processors=maximumPhysicalCores, compute_once=True)
+    show_image(width, height, max_iter, regions="auto", processors=maximumPhysicalCores, compute_once=True)
 
 if __name__ == '__main__':
     root = tk.Tk()
