@@ -84,8 +84,12 @@ def ComputeAll():
     runTime.clear()
 
 def ComputeOnce():
+    fig, ax = plt.subplots(figsize=(10, 10))
     width, height = map(int, resolution.split('x'))
-    show_image(width, height, max_iter=100, regions="auto", processors=maximumPhysicalCores, compute_once=True)
+    ZoomableMandelbrot(ax, max_iter=max_iter_value, regions="auto",processors=maximumPhysicalCores, width=width, height=height, ComputeOnce=True)
+    
+    plt.show()
+
 
 if __name__ == '__main__':
     root = tk.Tk()
