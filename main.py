@@ -99,29 +99,80 @@ def ComputeOnce():
     
     plt.show()
 
-
-
 def SizeBenchmark():
-    runTime.clear()
-    for i in range(0, len(resolutions)):
-        width, height = map(int, resolutions[i].split('x'))
+    singleCoreTimeForSizes = []
+    multiCoreTimeForSizes = []
+
+    # Calculate runtime for single core and multi-core for each resolution
+    for resolution in resolutions:
+        width, height = map(int, resolution.split('x'))
+        
+        # Single core computation
+        runTime.clear()
         ZoomableMandelbrot(root, max_iter=max_iter_value, regions="auto", processors=1, width=width, height=height, ComputeOnce=False)
-    singleCoreTimeForSizes = runTime
-    print(singleCoreTimeForSizes)
+        singleCoreTimeForSizes.append(runTime[0])  # Append actual runtime to singleCoreTimeForSizes
 
-    runTime.clear()
-    for i in range(0, len(resolutions)):
-        width, height = map(int, resolutions[i].split('x'))
+        # Multi-core computation
+        runTime.clear()
         ZoomableMandelbrot(root, max_iter=max_iter_value, regions="auto", processors=maximumPhysicalCores, width=width, height=height, ComputeOnce=False)
-    multiCoreTimeForSizes = runTime
-    print(multiCoreTimeForSizes)
+        multiCoreTimeForSizes.append(runTime[0])  # Append actual runtime to multiCoreTimeForSizes
 
-    speedupForSizes = [singleCoreTimeForSizes[0] / time for time in multiCoreTimeForSizes]
-
+    # Calculate Speedup and Efficiency for each resolution
+    speedupForSizes = [singleCoreTimeForSizes[i] / multiCoreTimeForSizes[i] for i in range(len(resolutions))]
     efficiencyForSizes = [100 * speedup / maximumPhysicalCores for speedup in speedupForSizes]
 
-    print(speedupForSizes)
-    print(efficiencyForSizes)
+    print("Single-Core Time:", singleCoreTimeForSizes)
+    print("Multi-Core Time:", multiCoreTimeForSizes)
+    print("Speedup:", speedupForSizes)
+    print("Efficiency:", efficiencyForSizes)
+
+    # Plotting Speedup and Efficiency
+    fig, ax1 = plt.subplots(figsize=(12, 6))
+
+    # Plot Speedup on the left y-axis
+    ax1.plot(resolutions, speedupForSizes, marker='s', linestyle='--', color='tab:blue', label='Speedup')
+    ax1.set_ylabel('Speedup', color='tab:blue')
+    ax1.tick_params(axis='y', labelcolor='tab:blue')
+
+    # Create a secondary y-axis for Efficiency on the right side
+    ax2 = ax1.twinx()
+    ax2.set_ylim(0, 50)
+    ax2.plot(resolutions, efficiencyForSizes, marker='o', linestyle='-', color='tab:orange', label='Efficiency')
+    ax2.set_ylabel('Efficiency (%)', color='tab:orange')
+    ax2.tick_params(axis='y', labelcolor='tab:orange')
+
+    ax1.set_xlabel('Resolution')
+    ax1.set_xticks(resolutions)
+    ax1.set_xticklabels(resolutions, rotation=45, ha='right')
+    ax1.set_title(f'Speedup and Efficiency vs. Resolution at {maximumPhysicalCores} Processors and {max_iter_value} Iterations')
+
+    # Set legend
+    lines1, labels1 = ax1.get_legend_handles_labels()
+    lines2, labels2 = ax2.get_legend_handles_labels()
+    ax1.legend(lines1 + lines2, labels1 + labels2, loc='upper left')
+
+    plt.grid(True)
+    plt.tight_layout()
+    plt.show()
+
+    # Plotting Single-Core and Multi-Core Runtime
+    fig, ax = plt.subplots(figsize=(12, 6))
+
+    # Plot Single-Core and Multi-Core Runtime
+    ax.plot(resolutions, singleCoreTimeForSizes, marker='v', linestyle='-', color='tab:red', label='Single-Core Runtime')
+    ax.plot(resolutions, multiCoreTimeForSizes, marker='^', linestyle='-', color='tab:green', label='Multi-Core Runtime')
+
+    ax.set_xlabel('Resolution')
+    ax.set_ylabel('Time (s)')
+    ax.set_xticks(resolutions)
+    ax.set_xticklabels(resolutions, rotation=45, ha='right')
+    ax.set_title(f'Single Processor and {maximumPhysicalCores} Processors Runtime vs. Resolution at {max_iter_value} Iterations')
+
+    ax.legend(loc='upper left')
+    plt.grid(True)
+    plt.tight_layout()
+    plt.show()
+
 
     
 
@@ -133,7 +184,7 @@ if __name__ == '__main__':
     selected_resolution = tk.StringVar(root)
     selected_resolution.set(resolutions[0])  # Default resolution
 
-    #SizeBenchmark()
+    SizeBenchmark()
 
     button_compute_once = tk.Button(root, text="Tüm Çekirdeklerle Hesapla", command=ComputeOnce, width=20)
     button_compute_once.pack(side="left", padx=30, pady=20)  # Add horizontal padding between buttons
