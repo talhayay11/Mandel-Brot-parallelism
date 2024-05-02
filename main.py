@@ -22,14 +22,14 @@ minToMaxProcessors = list(range(1,maximumPhysicalCores+1))
 #     plot_mandelbrot_gpu(max_iter=10000, width=1024, height=1024)
 #     plot_zoomable_mandelbrot(1000)
 resolution = "800x800"  # Initialize the variable in the global scope
-max_iter = 100  # Initialize the variable in the global scope
-
+max_iter_value = 100  # Initialize the variable in the global scope
 def on_resolution_selected(selected_resolution):
     global resolution
     resolution = selected_resolution
     messagebox.showwarning("Selected Resolution", f"Selected resolution: {resolution}")
 
 def set_max_iter():
+    global max_iter_value
     max_iter_value = max_iter_entry.get()
     try:
         max_iter_value = int(max_iter_value)
@@ -44,14 +44,14 @@ def show_image(width, height, max_iter, regions, processors, compute_once):
     image_window.title("Mandelbrot Set")
 
     # Compute Mandelbrot set
-    mandelbrot = ZoomableMandelbrot(image_window,  width=width, height=height, max_iter=max_iter, regions=regions,
-                                    processors=processors, ComputeOnce=compute_once)
+    mandelbrot = ZoomableMandelbrot(image_window, max_iter=max_iter_value, regions=regions,
+                                    processors=processors, width=width, height=height, ComputeOnce=compute_once)
 
 def ComputeAll():
     width, height = map(int, resolution.split('x'))
     messagebox.showinfo("Compute All", f"Testing for {minToMaxProcessors} processors")
     for processors in minToMaxProcessors:
-        ZoomableMandelbrot(width, height, regions="auto", processors=processors, ComputeOnce=False)
+        ZoomableMandelbrot(root, max_iter=max_iter_value, regions="auto", processors=processors, width=width, height=height, ComputeOnce=False)
     
     messagebox.showinfo("Efficiency", f"Efficiency: {Efficiency}\nAverage Efficiency: {np.mean(Efficiency)}")
     messagebox.showinfo("Speedup", f"Speedup: {Speedup}\nAverage Speedup: {np.mean(Speedup)}")
@@ -60,7 +60,7 @@ def ComputeAll():
 
 def ComputeOnce():
     width, height = map(int, resolution.split('x'))
-    show_image(width, height, max_iter, regions="auto", processors=maximumPhysicalCores, compute_once=True)
+    show_image(width, height, max_iter=100, regions="auto", processors=maximumPhysicalCores, compute_once=True)
 
 if __name__ == '__main__':
     root = tk.Tk()
