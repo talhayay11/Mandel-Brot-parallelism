@@ -9,7 +9,7 @@ import os
 import tkinter as tk
 
 from mandelbrot_plotting import  ZoomableMandelbrot, Efficiency, Speedup, runTime
-#from mandelbrot_gpu import plot_mandelbrot_gpu
+from mandelbrot_gpu import plot_mandelbrot_gpu
 from mandelbrot_core import processCount
 
 maximumPhysicalCores = os.cpu_count() // 2
@@ -23,6 +23,10 @@ minToMaxProcessors = list(range(1,maximumPhysicalCores+1))
 #     plot_zoomable_mandelbrot(1000)
 resolution = "800x800"  # Initialize the variable in the global scope
 max_iter_value = 100  # Initialize the variable in the global scope
+
+def butona_tiklandi():
+    plot_mandelbrot_gpu(10000, 1024,1024,1)
+
 def on_resolution_selected(selected_resolution):
     global resolution
     resolution = selected_resolution
@@ -91,6 +95,7 @@ def ComputeOnce():
     plt.show()
 
 
+
 if __name__ == '__main__':
     root = tk.Tk()
     root.title("Mandelbrot Set Viewer")
@@ -116,6 +121,11 @@ if __name__ == '__main__':
     max_iter_entry.pack()
     set_max_iter_button = tk.Button(root, text="Set Max Iteration", command=set_max_iter)
     set_max_iter_button.pack(pady=10)
+
+
+
+    buton = tk.Button(root, text="GPU ILE CALISTIR", command=butona_tiklandi)
+    buton.pack()
 
     root.mainloop()
     #plot_mandelbrot_gpu(max_iter=10000, width=1024, height=1024)
