@@ -9,7 +9,7 @@ def mandelbrot_cuda(c, max_iter):
     for n in range(max_iter):
         if abs(z) > 2:
             return n
-        z = z*z + c
+        z = z*z+c
     return max_iter
 
 @cuda.jit
@@ -62,8 +62,35 @@ def compute_mandelbrot_gpu(min_x, max_x, min_y, max_y, width, height, max_iter, 
 
 def plot_mandelbrot_gpu(max_iter, width, height,num_grids ):
     fig, ax = plt.subplots(figsize=(10, 10))
-    image = compute_mandelbrot_gpu(-2.0, 1.0, -1.5, 1.5, width, height, max_iter, num_grids)
-    ax.imshow(image, extent=[-2.0, 1.0, -1.5, 1.5], origin='lower', cmap='hot')
+    min_x, max_x, min_y, max_y = -2.0, 1.0, -1.5, 1.5
+    image = compute_mandelbrot_gpu(min_x, max_x, min_y, max_y, width, height, max_iter, num_grids)
+    im = ax.imshow(image, extent=[min_x, max_x, min_y, max_y], origin='lower', cmap='hot')
+
+    def on_scroll(event):
+        nonlocal min_x, max_x, min_y, max_y
+        if event.xdata is None or event.ydata is None:
+            return  # Outside of plot
+        zoom_factor = 0.5
+        if event.button == 'up':  # zoom in
+            zoom_factor = 1 - zoom_factor
+        else:  # zoom out
+            zoom_factor = 1 + zoom_factor
+        new_width = (max_x - min_x) * zoom_factor
+        new_height = (max_y - min_y) * zoom_factor
+        center_x = event.xdata
+        center_y = event.ydata
+
+        min_x = center_x - (center_x - min_x) * zoom_factor
+        max_x = center_x + (max_x - center_x) * zoom_factor
+        min_y = center_y - (center_y - min_y) * zoom_factor
+        max_y = center_y + (max_y - center_y) * zoom_factor
+
+        image = compute_mandelbrot_gpu(min_x, max_x, min_y, max_y, width, height, max_iter, num_grids)
+        im.set_data(image)
+        im.set_extent([min_x, max_x, min_y, max_y])
+        ax.figure.canvas.draw_idle()
+
+    fig.canvas.mpl_connect('scroll_event', on_scroll)
     plt.show()
 
 # Çizimi başlat
