@@ -55,6 +55,28 @@ def ComputeAll():
     
     messagebox.showinfo("Efficiency", f"Efficiency: {Efficiency}\nAverage Efficiency: {np.mean(Efficiency)}")
     messagebox.showinfo("Speedup", f"Speedup: {Speedup}\nAverage Speedup: {np.mean(Speedup)}")
+    # Efficiency and Speedup calculation
+    efficiency_data = [efficiency / time for efficiency, time in zip(Efficiency, range(1, len(Efficiency) + 1))]
+    speedup_data = [speedup / time for speedup, time in zip(Speedup, range(1, len(Speedup) + 1))]
+    
+    # Plotting Efficiency over Time
+    plt.figure(figsize=(8, 5))
+    plt.plot(range(1, len(efficiency_data) + 1), efficiency_data, marker='o', linestyle='-')
+    plt.title("Efficiency over Time")
+    plt.xlabel("Time")
+    plt.ylabel("Efficiency")
+    plt.grid(True)
+    plt.show()
+    
+    # Plotting Speedup over Time
+    plt.figure(figsize=(8, 5))
+    plt.plot(range(1, len(speedup_data) + 1), speedup_data, marker='o', linestyle='-')
+    plt.title("Speedup over Time")
+    plt.xlabel("Time")
+    plt.ylabel("Speedup")
+    plt.grid(True)
+    plt.show()
+    
     Efficiency.clear()
     Speedup.clear()
 
