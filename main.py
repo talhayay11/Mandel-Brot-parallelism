@@ -20,12 +20,12 @@ minToMaxProcessors = list(range(1,maximumPhysicalCores+1))
     
 #     plot_mandelbrot_gpu(max_iter=10000, width=1024, height=1024)
 #     plot_zoomable_mandelbrot(1000)
+resolution = "800x800"  # Initialize the variable in the global scope
 
 def on_resolution_selected(selected_resolution):
-    global resolution
-    resolution = selected_resolution
+    global resolution  # Declare that we use the global variable
+    resolution = selected_resolution  # Set the global variable
     print(f"Selected resolution: {resolution}")
-    
 
 def ComputeAll():
     width, height = map(int, resolution.split('x'))
