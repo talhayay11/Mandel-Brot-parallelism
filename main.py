@@ -76,7 +76,7 @@ def ComputeAll():
     plt.ylabel("Speedup")
     plt.grid(True)
     plt.show()
-    
+
     Efficiency.clear()
     Speedup.clear()
 
@@ -88,7 +88,7 @@ if __name__ == '__main__':
     root = tk.Tk()
     root.title("Mandelbrot Set Viewer")
     
-    resolutions = ["800x800", "1024x1024", "1280x720", "1920x1080"]
+    resolutions = ["800x800", "1024x1024", "400x400", "600x600" , "1200x1200"]
     selected_resolution = tk.StringVar(root)
     selected_resolution.set(resolutions[0])  # Default resolution
 
