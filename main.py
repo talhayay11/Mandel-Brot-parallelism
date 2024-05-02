@@ -62,6 +62,8 @@ def ComputeAll():
     Efficiency = [100 * speedup / processor for speedup, processor in zip(Speedup, minToMaxProcessors)]
     print(Efficiency)
 
+    plt.close()
+
     plt.plot(minToMaxProcessors, Efficiency, marker='o', linestyle='-', color='tab:blue', label="Efficiency")
     plt.xlabel("Number of Processors")
     plt.ylabel("Efficiency (%)", color='tab:blue')
