@@ -182,7 +182,7 @@ class ZoomableMandelbrot:
 
         if self.ComputeOnce==False:
             start_time_sequential = time.time()
-            final_result_sequential = compute_mandelbrot_region(("Sequential", self.xmin, self.xmax, self.ymin, self.ymax, self.width, self.height, self.max_iter))
+            compute_mandelbrot_region(("Sequential", self.xmin, self.xmax, self.ymin, self.ymax, self.width, self.height, self.max_iter))
             elapsed_time_sequential = time.time() - start_time_sequential
 
             # Compute the speedup
