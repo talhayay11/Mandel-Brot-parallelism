@@ -98,4 +98,4 @@ max_iter=1000
 width=1024
 height=1024
 num_grids=1
-plot_mandelbrot_gpu(max_iter,width,height,num_grids)
+#plot_mandelbrot_gpu(max_iter,width,height,num_grids)
