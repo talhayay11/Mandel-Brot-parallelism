@@ -111,7 +111,7 @@ class ZoomableMandelbrot:
         if ymin is None:
             ymin, ymax = self.ymin, self.ymax    
 
-        print(f"Running on {self.regions} regions and {self.max_iter} iterations.")
+        print(f"Running on {self.regions} regions and {self.max_iter} iterations at {self.width} and {self.height}.")
 
             # Calculate width and height of each region
         region_width = int(self.width // self.regions)

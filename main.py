@@ -16,6 +16,11 @@ maximumPhysicalCores = os.cpu_count() // 2
 
 minToMaxProcessors = list(range(1,maximumPhysicalCores+1))
 
+singleCoreTimeForSizes = []
+multiCoreTimeForSizes = []
+speedupForSizes = []
+efficiencyForSizes = []
+
 
 # if __name__ == '__main__':
     
@@ -96,13 +101,39 @@ def ComputeOnce():
 
 
 
+def SizeBenchmark():
+    runTime.clear()
+    for i in range(0, len(resolutions)):
+        width, height = map(int, resolutions[i].split('x'))
+        ZoomableMandelbrot(root, max_iter=max_iter_value, regions="auto", processors=1, width=width, height=height, ComputeOnce=False)
+    singleCoreTimeForSizes = runTime
+    print(singleCoreTimeForSizes)
+
+    runTime.clear()
+    for i in range(0, len(resolutions)):
+        width, height = map(int, resolutions[i].split('x'))
+        ZoomableMandelbrot(root, max_iter=max_iter_value, regions="auto", processors=maximumPhysicalCores, width=width, height=height, ComputeOnce=False)
+    multiCoreTimeForSizes = runTime
+    print(multiCoreTimeForSizes)
+
+    speedupForSizes = [singleCoreTimeForSizes[0] / time for time in multiCoreTimeForSizes]
+
+    efficiencyForSizes = [100 * speedup / maximumPhysicalCores for speedup in speedupForSizes]
+
+    print(speedupForSizes)
+    print(efficiencyForSizes)
+
+    
+
 if __name__ == '__main__':
     root = tk.Tk()
     root.title("Mandelbrot Set Viewer")
     
-    resolutions = ["800x800", "1024x1024", "400x400", "600x600" , "1200x1200"]
+    resolutions = [ "400x400", "600x600" ,"800x800", "1024x1024", "1200x1200"]
     selected_resolution = tk.StringVar(root)
     selected_resolution.set(resolutions[0])  # Default resolution
+
+    #SizeBenchmark()
 
     button_compute_once = tk.Button(root, text="Tüm Çekirdeklerle Hesapla", command=ComputeOnce, width=20)
     button_compute_once.pack(side="left", padx=30, pady=20)  # Add horizontal padding between buttons
