@@ -11,6 +11,10 @@ from mandelbrot_plotting import  ZoomableMandelbrot, Efficiency, Speedup
 from mandelbrot_gpu import plot_mandelbrot_gpu
 from mandelbrot_core import processCount
 
+maximumPhysicalCores = os.cpu_count() // 2
+
+minToMaxProcessors = list(range(1,maximumPhysicalCores+1))
+
  
 
 # if __name__ == '__main__':
@@ -21,7 +25,8 @@ from mandelbrot_core import processCount
 def on_resolution_selected():
     # width, height = map(int, selected_resolution.split('x'))
     # print(width, height)
-    for processors in processCount:
+    print(f"Testing for {minToMaxProcessors} processors")
+    for processors in minToMaxProcessors:
         mandelbrot = ZoomableMandelbrot(root, max_iter=100, regions="auto", processors=processors, width=800, height=800, ComputeOnce=False)
         # Do further operations with mandelbrot_display if needed
     
@@ -38,7 +43,7 @@ def on_resolution_selected():
 
 def ComputeOnce():
 
-    ZoomableMandelbrot(root, max_iter=100, regions="auto", processors=8, width=800, height=800, ComputeOnce=True)
+    ZoomableMandelbrot(root, max_iter=100, regions="auto", processors=maximumPhysicalCores, width=800, height=800, ComputeOnce=True)
         # Do further operations with mandelbrot_display if needed
 
 if __name__ == '__main__':
