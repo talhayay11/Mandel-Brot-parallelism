@@ -34,11 +34,12 @@ class ZoomableMandelbrot:
             self.canvas_widget = self.canvas.get_tk_widget()
             self.canvas_widget.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
         
-        
-        if regions == "auto":
+        if processors == 1:
+            self.regions = 1
+        elif regions == "auto":
             self.regions = processors * 2
         else:
-            self.regions = 20
+            self.regions = 24
         
         self.press = None
         self.xmin, self.xmax = -2.0, 2.0
@@ -143,7 +144,7 @@ class ZoomableMandelbrot:
         if ymin is None:
             ymin, ymax = self.ymin, self.ymax    
 
-        print(f"Number of regions: {self.regions}")
+        print(f"Running on {self.regions} regions and {self.max_iter} iterations.")
 
             # Calculate width and height of each region
         region_width = int(self.width // self.regions)
