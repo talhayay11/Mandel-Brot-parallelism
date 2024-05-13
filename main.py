@@ -10,7 +10,7 @@ import tkinter as tk
 import threading
 
 from mandelbrot_plotting import  ZoomableMandelbrot, Efficiency, Speedup, runTime
-from mandelbrot_gpu import plot_mandelbrot_gpu
+from mandelbrot_gpu import plot_mandelbrot_gpu, Compute_Md_Gpu, block_size, compute_mandelbrot_gpuFORONE,all_time
 from mandelbrot_core import processCount
 
 maximumPhysicalCores = os.cpu_count() // 2
@@ -21,6 +21,8 @@ singleCoreTimeForSizes = []
 multiCoreTimeForSizes = []
 speedupForSizes = []
 efficiencyForSizes = []
+
+resolutions = [ "400x400", "600x600" ,"800x800", "1024x1024", "1200x1200"]
 
 
 # if __name__ == '__main__':
@@ -101,14 +103,111 @@ def ComputeOnceGPU():
     width, height = map(int, resolution.split('x'))
     plot_mandelbrot_gpu(max_iter_value,width,height,1)
 
+def ComputeAllGPU():
+    width, height = map(int, resolution.split('x'))
+    runTimeGPU, speedUp_GPU, EfficiencyGPU = Compute_Md_Gpu(max_iter_value,width,height,1)
+
+    plt.close()
+
+    plt.plot(block_size, EfficiencyGPU, marker='o', linestyle='-', color='tab:blue', label="Efficiency")
+    plt.xlabel("Number of GPU Blocks")
+    plt.ylabel("Efficiency (%)", color='tab:blue')
+    plt.tick_params(axis='y', labelcolor='tab:blue')
+
+    # Create a secondary y-axis for Speedup on the right side
+    ax2 = plt.gca().twinx()
+    ax2.plot(block_size, speedUp_GPU, marker='s', linestyle='--', color='tab:orange', label="Speedup")
+    ax2.set_ylabel("Speedup", color='tab:orange')
+    ax2.tick_params(axis='y', labelcolor='tab:orange')
+
+    plt.title('Efficiency and Speedup vs. Number of GPU Blocks')
+    plt.grid(True)
+    plt.show()
+
 def onSelectedComputeUnit(selected_compute_unit):
     print(selected_compute_unit)
     if selected_compute_unit == "GPU":
         button_compute_once.config(command=start_compute_once_gpu)
+        button_compute_all.config(command=start_compute_all_gpu)
+        button_size_benchmark.config(command=start_size_benchmarkGPU)
     elif selected_compute_unit == "CPU":
         button_compute_once.config(command=start_compute_once)
         button_compute_all.config(command=start_compute_all)
+        button_size_benchmark.config(command=start_benchmark)
 
+def SizeBenchmarkGPU():
+    singleCoreTimeForSizes = []
+    multiCoreTimeForSizes = []
+
+    # Calculate runtime for single core and multi-core for each resolution
+    for resolution in resolutions:
+        width, height = map(int, resolution.split('x'))
+        print(width, height)
+        # Single core computation
+        all_time.clear()
+        compute_mandelbrot_gpuFORONE(-2.0, 1.0, -1.5, 1.5, width, height, max_iter_value, 1,1)
+        singleCoreTimeForSizes.append(all_time[0])  # Append actual runtime to singleCoreTimeForSizes
+
+        # Multi-core computation
+        all_time.clear()
+        compute_mandelbrot_gpuFORONE(-2.0, 1.0, -1.5, 1.5, width, height, max_iter_value, 1,32)
+        multiCoreTimeForSizes.append(all_time[0])  # Append actual runtime to multiCoreTimeForSizes
+
+    # Calculate Speedup and Efficiency for each resolution
+    speedupForSizes = [singleCoreTimeForSizes[i] / multiCoreTimeForSizes[i] for i in range(len(resolutions))]
+    efficiencyForSizes = [100 * speedup / 32**2 for speedup in speedupForSizes]
+
+    print("Single-Core Time:", singleCoreTimeForSizes)
+    print("Multi-Core Time:", multiCoreTimeForSizes)
+    print("Speedup:", speedupForSizes)
+    print("Efficiency:", efficiencyForSizes)
+
+    # Plotting Speedup and Efficiency
+    fig, ax1 = plt.subplots(figsize=(12, 6))
+
+    # Plot Speedup on the left y-axis
+    ax1.plot(resolutions, speedupForSizes, marker='s', linestyle='--', color='tab:blue', label='Speedup')
+    ax1.set_ylabel('Speedup', color='tab:blue')
+    ax1.tick_params(axis='y', labelcolor='tab:blue')
+
+    # Create a secondary y-axis for Efficiency on the right side
+    ax2 = ax1.twinx()
+    ax2.set_ylim(0, 50)
+    ax2.plot(resolutions, efficiencyForSizes, marker='o', linestyle='-', color='tab:orange', label='Efficiency')
+    ax2.set_ylabel('Efficiency (%)', color='tab:orange')
+    ax2.tick_params(axis='y', labelcolor='tab:orange')
+
+    ax1.set_xlabel('Resolution')
+    ax1.set_xticks(resolutions)
+    ax1.set_xticklabels(resolutions, rotation=45, ha='right')
+    ax1.set_title(f'Speedup and Efficiency vs. Resolution at {32} Block and {max_iter_value} Iterations')
+
+    # Set legend
+    lines1, labels1 = ax1.get_legend_handles_labels()
+    lines2, labels2 = ax2.get_legend_handles_labels()
+    ax1.legend(lines1 + lines2, labels1 + labels2, loc='upper left')
+
+    plt.grid(True)
+    plt.tight_layout()
+    plt.show()
+
+    # Plotting Single-Core and Multi-Core Runtime
+    fig, ax = plt.subplots(figsize=(12, 6))
+
+    # Plot Single-Core and Multi-Core Runtime
+    ax.plot(resolutions, singleCoreTimeForSizes, marker='v', linestyle='-', color='tab:red', label='Single-Core Runtime')
+    ax.plot(resolutions, multiCoreTimeForSizes, marker='^', linestyle='-', color='tab:green', label='Multi-Core Runtime')
+
+    ax.set_xlabel('Resolution')
+    ax.set_ylabel('Time (s)')
+    ax.set_xticks(resolutions)
+    ax.set_xticklabels(resolutions, rotation=45, ha='right')
+    ax.set_title(f'Single Block and {32} Block Runtime vs. Resolution at {max_iter_value} Iterations')
+
+    ax.legend(loc='upper left')
+    plt.grid(True)
+    plt.tight_layout()
+    plt.show()
 
 def SizeBenchmark():
     singleCoreTimeForSizes = []
@@ -193,6 +292,14 @@ if __name__ == '__main__':
 
     # add thread for each function
 
+    def start_size_benchmarkGPU():
+        thread_size_benchmarkGPU = threading.Thread(target=SizeBenchmarkGPU)
+        thread_size_benchmarkGPU.start()
+
+    def start_compute_all_gpu():
+        thread_compute_all_gpu = threading.Thread(target=ComputeAllGPU)
+        thread_compute_all_gpu.start()
+
     def start_benchmark():
         thread_Benchmark = threading.Thread(target=SizeBenchmark)
         thread_Benchmark.start() 
@@ -212,11 +319,8 @@ if __name__ == '__main__':
     compute_units = ["GPU", "CPU"]
     selected_compute_unit = tk.StringVar(root)
     selected_compute_unit.set(compute_units[1])  # Default compute unit
-    resolutions = [ "400x400", "600x600" ,"800x800", "1024x1024", "1200x1200"]
     selected_resolution = tk.StringVar(root)
     selected_resolution.set(resolutions[0])  # Default resolution
-
-    SizeBenchmark()
 
     global button_compute_once, button_compute_all
     button_compute_once = tk.Button(root, text="Tüm Çekirdeklerle Hesapla", command=start_compute_once, width=20)
