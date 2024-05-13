@@ -127,13 +127,13 @@ def ComputeAllGPU():
 def onSelectedComputeUnit(selected_compute_unit):
     print(selected_compute_unit)
     if selected_compute_unit == "GPU":
-        button_compute_once.config(command=start_compute_once_gpu)
-        button_compute_all.config(command=start_compute_all_gpu)
-        button_size_benchmark.config(command=start_size_benchmarkGPU)
+        button_compute_once.config(command=ComputeOnceGPU)
+        button_compute_all.config(command=ComputeAllGPU)
+        button_size_benchmark.config(command=SizeBenchmarkGPU)
     elif selected_compute_unit == "CPU":
-        button_compute_once.config(command=start_compute_once)
-        button_compute_all.config(command=start_compute_all)
-        button_size_benchmark.config(command=start_benchmark)
+        button_compute_once.config(command=ComputeOnce)
+        button_compute_all.config(command=ComputeAll)
+        button_size_benchmark.config(command=SizeBenchmark)
 
 def SizeBenchmarkGPU():
     singleCoreTimeForSizes = []
@@ -323,16 +323,16 @@ if __name__ == '__main__':
     selected_resolution.set(resolutions[0])  # Default resolution
 
     global button_compute_once, button_compute_all
-    button_compute_once = tk.Button(root, text="Tüm Çekirdeklerle Hesapla", command=start_compute_once, width=20)
+    button_compute_once = tk.Button(root, text="Tüm Çekirdeklerle Hesapla", command=ComputeOnce, width=20)
     button_compute_once.pack(side="left", padx=30, pady=20)  # Add horizontal padding between buttons
 
-    button_compute_all = tk.Button(root, text="Sırayla Tüm Çekirdekler", command=start_compute_all, width=20)
+    button_compute_all = tk.Button(root, text="Sırayla Tüm Çekirdekler", command=ComputeAll, width=20)
     button_compute_all.pack(side="right", padx=20, pady=20)  # Add horizontal padding between buttons
 
     compute_units_dropdown = tk.OptionMenu(root, selected_compute_unit, *compute_units, command=onSelectedComputeUnit)
     compute_units_dropdown.pack(pady=10)
 
-    button_size_benchmark = tk.Button(root, text="Size Benchmark", command=start_benchmark, width=20)
+    button_size_benchmark = tk.Button(root, text="Size Benchmark", command=SizeBenchmark, width=20)
     button_size_benchmark.pack(pady=10)
         
     # Dropdown menu for selecting resolution

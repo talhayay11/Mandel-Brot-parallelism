@@ -47,8 +47,6 @@ def compute_mandelbrot_gpu(min_x, max_x, min_y, max_y, width, height, max_iter, 
     return image_gpu, all_time,block_size 
 
 
-
-
 def plot_mandelbrot_gpu(max_iter, width, height,num_grids ):
     fig, ax = plt.subplots(figsize=(10, 10))
     min_x, max_x, min_y, max_y = -2.0, 1.0, -1.5, 1.5
