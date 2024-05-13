@@ -116,6 +116,13 @@ def compute_mandelbrot_gpuFORONE(min_x, max_x, min_y, max_y, width, height, max_
 
     return image_gpu, all_time,block_size 
 
+def plot_mandelbrot_gpuFORONE(max_iter, width, height,num_grids,core):
+    fig, ax = plt.subplots(figsize=(10, 10))
+    min_x, max_x, min_y, max_y = -2.0, 1.0, -1.5, 1.5
+    image, all_time,block_size  = compute_mandelbrot_gpuFORONE(min_x, max_x, min_y, max_y, width, height, max_iter, num_grids,core)
+    im = ax.imshow(image, extent=[min_x, max_x, min_y, max_y], origin='lower', cmap='hot')
+
+    plt.show()
 
 
 
