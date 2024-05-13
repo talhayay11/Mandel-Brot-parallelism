@@ -43,7 +43,7 @@ def plot_mandelbrot_gpu(max_iter, width, height, num_grids):
         if event.xdata is None or event.ydata is None:
             return  # Outside of plot
         zoom_factor = 0.1
-        if event.button == 'up':  # zoom in
+        if event.button == 'up':  # zoom ins
             zoom_factor = 1 - zoom_factor
         else:  # zoom out
             zoom_factor = 1 + zoom_factor
