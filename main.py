@@ -10,7 +10,7 @@ import tkinter as tk
 import threading
 
 from mandelbrot_plotting import  ZoomableMandelbrot, Efficiency, Speedup, runTime
-from mandelbrot_gpu import plot_mandelbrot_gpu, Compute_Md_Gpu, block_size, compute_mandelbrot_gpuFORONE,all_time
+from mandelbrot_gpu import plot_mandelbrot_gpu, Compute_Md_Gpu, block_size, compute_mandelbrot_gpuFORONE,all_time, plot_mandelbrot_gpuFORONE
 from mandelbrot_core import processCount
 
 maximumPhysicalCores = os.cpu_count() // 2
@@ -101,7 +101,8 @@ def ComputeOnce():
 
 def ComputeOnceGPU():
     width, height = map(int, resolution.split('x'))
-    plot_mandelbrot_gpu(max_iter_value,width,height,1)
+   # plot_mandelbrot_gpu(max_iter_value,width,height,1)
+    plot_mandelbrot_gpuFORONE(max_iter_value,width,height,1,32)
 
 def ComputeAllGPU():
     width, height = map(int, resolution.split('x'))
