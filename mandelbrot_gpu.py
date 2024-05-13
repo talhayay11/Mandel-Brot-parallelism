@@ -121,6 +121,7 @@ def plot_mandelbrot_gpuFORONE(max_iter, width, height,num_grids,core):
     min_x, max_x, min_y, max_y = -2.0, 1.0, -1.5, 1.5
     image, all_time,block_size  = compute_mandelbrot_gpuFORONE(min_x, max_x, min_y, max_y, width, height, max_iter, num_grids,core)
     im = ax.imshow(image, extent=[min_x, max_x, min_y, max_y], origin='lower', cmap='hot')
+    print(f"Parallel GPU computation time for grid 32x32: {all_time[0]:.4f} secnds")
 
     plt.show()
 
@@ -147,6 +148,7 @@ def Compute_Md_Gpu(max_iter, width, height,num_grids ):
 def Compute_Md_GpuFORONE(max_iter, width, height,num_grids):
     min_x, max_x, min_y, max_y = -2.0, 1.0, -1.5, 1.5
     image, all_time,block_size  = compute_mandelbrot_gpuFORONE(min_x, max_x, min_y, max_y, width, height, max_iter, num_grids)
+
 
 
 

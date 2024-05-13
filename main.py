@@ -269,7 +269,7 @@ def SizeBenchmark():
     # Plotting Single-Core and Multi-Core Runtime
     fig, ax = plt.subplots(figsize=(12, 6))
 
-    # Plot Single-Core and Multi-Core Runtime
+    # Plot Single-Core and Multi-Core Runtimes
     ax.plot(resolutions, singleCoreTimeForSizes, marker='v', linestyle='-', color='tab:red', label='Single-Core Runtime')
     ax.plot(resolutions, multiCoreTimeForSizes, marker='^', linestyle='-', color='tab:green', label='Multi-Core Runtime')
 
